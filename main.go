@@ -2,43 +2,17 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"os/exec"
+
+	"github.com/gin-gonic/gin"
+	"github.com/videoStreaming/hls"
 )
 
 func main() {
-	inputFile := "/home/afthab/Desktop/videoStreaming/videoFile/football.mp4"
-	outputDir := "/home/afthab/Desktop/videoStreaming/outputFile"
-	segmentTime := "10" // Segment duration in seconds
-
-	cmd := exec.Command("ffmpeg",
-		"-i", inputFile,
-		"-c:v", "copy",
-		"-c:a", "aac",
-		"-hls_time", segmentTime,
-		"-hls_list_size", "0",
-		"-hls_segment_filename", outputDir+"/%03d.ts",
-		outputDir+"/playlist.m3u8",
-	)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Serve HLS files and the HTML page
-	http.Handle("/", http.FileServer(http.Dir("/home/afthab/Desktop/videoStreaming/outputFile/")))
-
-	fmt.Println("streaming started at 8080 /")
-
-	// Start the HTTP server
-	err = http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	r := gin.Default()
+	r.POST("/select/file", hls.CreateHLS)
+	r.Static("/stream", "/home/afthab/Desktop/videoStreaming/outputFile/")
+	fmt.Println("Port running at :9998/stream/playlist.m3u8")
+	r.Run(":9998")
 }
+
+//https://hlsjs-dev.video-dev.org/demo/
