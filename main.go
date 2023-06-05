@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 )
@@ -27,4 +29,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Serve HLS files and the HTML page
+	http.Handle("/", http.FileServer(http.Dir("/home/afthab/Desktop/videoStreaming/outputFile/")))
+
+	fmt.Println("streaming started at 8080 /")
+
+	// Start the HTTP server
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
